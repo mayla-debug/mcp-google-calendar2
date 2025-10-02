@@ -1,32 +1,23 @@
-# ===== Stage 1: build =====
-FROM node:20-bullseye-slim AS builder
+FROM node:22-slim
+
 WORKDIR /app
 
-# Copia solo i file necessari per l’install
-COPY package.json package-lock.json ./
-# Install di TUTTE le dipendenze (incluse dev) per poter buildare
+# Solo i manifest per installare più in fretta
+COPY package.json package-lock.json* ./
+
+# Installa prod+dev: ci serve tsc e la CLI durante il build
 RUN npm ci
 
-# Copia sorgenti e config TS
-COPY tsconfig.json ./tsconfig.json
-COPY src ./src
+# Copia il resto
+COPY . .
 
-# Build TS -> JS
+# 1) compila TypeScript -> ./build
 RUN npm run build
 
-# ===== Stage 2: runtime =====
-FROM node:20-bullseye-slim
-WORKDIR /app
-ENV NODE_ENV=production
-ENV NODE_OPTIONS=--enable-source-maps
+# 2) genera il bundle per Smithery (HTTP/sHTTP, quello giusto per l’hosting)
+#    usiamo una versione della CLI allineata
+RUN npx -y @smithery/cli@1.4.2 build -o .smithery/index.cjs
 
-# Copia manifest e lock e installa SOLO dipendenze prod
-COPY package.json package-lock.json ./
-RUN npm ci --omit=dev
-
-# Copia artefatti buildati dallo stage precedente
-COPY --from=builder /app/build ./build
-# (Se ti serve in immagine:) COPY smithery.yaml ./smithery.yaml
-
-# Avvio del server MCP
-CMD ["node", "build/index.js"]
+# Smithery avvia il container aspettandosi un server HTTP.
+# Il bundle creato sopra espone l’endpoint MCP corretto.
+CMD ["node", ".smithery/index.cjs"]
