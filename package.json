@@ -1,6 +1,7 @@
 {
   "name": "google-calendar-mcp",
   "version": "1.0.1",
+  "module": "./src/index.ts",
   "description": "Google Calendar MCP Server",
   "type": "module",
   "bin": {
