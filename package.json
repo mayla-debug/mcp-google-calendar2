@@ -7,14 +7,14 @@
   "bin": {
     "google-calendar-mcp": "./build/index.js"
   },
-  "scripts": {
-    "typecheck": "tsc --noEmit",
-    "build": "npm run typecheck && node scripts/build.js",
-    "start": "node build/index.js",
-    "auth": "node build/auth-server.js",
-    "dev": "ts-node --esm src/index.ts",
-    "postinstall": "node scripts/build.js"
-  },
+ "scripts": {
+  "typecheck": "tsc --noEmit",
+  "build": "tsc -p tsconfig.json",
+  "start": "node build/index.js",
+  "auth": "node build/auth-server.js",
+  "dev": "ts-node --esm src/index.ts",
+  "postinstall": "npm run build"
+},
   "dependencies": {
     "@google-cloud/local-auth": "^3.0.1",
     "@modelcontextprotocol/sdk": "^1.0.3",
