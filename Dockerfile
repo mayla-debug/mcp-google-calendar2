@@ -2,22 +2,18 @@ FROM node:22-slim
 
 WORKDIR /app
 
-# Solo i manifest per installare più in fretta
+# Installa dipendenze (usa il lock se c'è)
 COPY package.json package-lock.json* ./
+RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
 
-# Installa prod+dev: ci serve tsc e la CLI durante il build
-RUN npm ci
-
-# Copia il resto
+# Copia il resto del progetto
 COPY . .
 
-# 1) compila TypeScript -> ./build
-RUN npm run build
+# Compila TypeScript (se usi build/ localmente)
+RUN npm run build || true
 
-# 2) genera il bundle per Smithery (HTTP/sHTTP, quello giusto per l’hosting)
-#    usiamo una versione della CLI allineata
-RUN npx -y @smithery/cli@1.4.2 build -o .smithery/index.cjs
+# 🔹 Build Smithery in formato ESM (non CJS)
+RUN npx -y @smithery/cli@1.4.4 build -o .smithery/index.mjs
 
-# Smithery avvia il container aspettandosi un server HTTP.
-# Il bundle creato sopra espone l’endpoint MCP corretto.
-CMD ["node", ".smithery/index.cjs"]
+# Avvio in ESM
+CMD ["node", ".smithery/index.mjs"]
