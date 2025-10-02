@@ -14,7 +14,7 @@
     "postinstall": "npm run build"
   },
   "dependencies": {
-    "@smithery/sdk": "0.1.0",
+    "@smithery/sdk": "git+https://github.com/smithery-ai/sdk.git#main",
     "@google-cloud/local-auth": "^3.0.1",
     "@modelcontextprotocol/sdk": "^1.0.3",
     "express": "^4.18.2",
