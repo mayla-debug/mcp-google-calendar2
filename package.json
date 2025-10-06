@@ -1,7 +1,6 @@
 {
   "name": "google-calendar-mcp",
   "version": "1.0.1",
-  "description": "Google Calendar MCP Server",
   "private": true,
   "main": "dist/index.cjs",
   "scripts": {
