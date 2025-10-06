@@ -1,5 +1,16 @@
-runtime: "typescript"
-startCommand:
-  type: "shttp"
-  command: "node"
-  args: ["build/index.js"]
+name: google-calendar-mcp
+build:
+  - npm ci
+  - npm run build
+start: npm run start
+env:
+  - name: PORT
+    required: true
+  - name: GOOGLE_CLIENT_ID
+    required: true
+  - name: GOOGLE_CLIENT_SECRET
+    required: true
+  - name: GOOGLE_SCOPES
+    default: "https://www.googleapis.com/auth/calendar"
+  - name: CALENDAR_ID
+    required: false
