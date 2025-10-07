@@ -1,23 +1,30 @@
-import express from "express";
-import { randomUUID } from "node:crypto";
+// src/index.ts — esporta un McpServer per lo wrapper di Smithery
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 
-const server = new McpServer({ name: "google-calendar-mcp", version: "1.0.0" });
+// alcune versioni espongono server.tool, altre server.registerTool — gestiamo entrambe
+function registerToolCompat(server: any, name: string, def: any, handler: any) {
+  const fn = server.registerTool ?? server.tool;
+  return fn.call(server, name, def, handler);
+}
 
-const app = express();
-app.use(express.json({ limit: "5mb" }));
-
-app.all("/mcp", async (req, res) => {
-  const transport = new StreamableHTTPServerTransport({
-    sessionIdGenerator: () => randomUUID(),
-    enableJsonResponse: true
+export default async function createServer() {
+  const server = new McpServer({
+    name: "google-calendar-mcp",
+    version: "1.0.0",
   });
-  await server.connect(transport);
-  await transport.handleRequest(req, res, req.body);
-});
 
-app.get("/", (_req, res) => res.type("text").send("ok"));
+  // Tool minimale per permettere allo scan di trovare qualcosa
+  registerToolCompat(
+    server,
+    "ping",
+    {
+      description: "Health check",
+      inputSchema: { type: "object", properties: {}, additionalProperties: false },
+    },
+    async () => ({
+      content: [{ type: "text", text: "pong" }],
+    })
+  );
 
-const port = Number(process.env.PORT ?? 3000);
-app.listen(port, () => console.log(`MCP HTTP online: http://localhost:${port}/mcp`));
+  return server;
+}
