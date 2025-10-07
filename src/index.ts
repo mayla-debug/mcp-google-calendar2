@@ -1,39 +1,50 @@
 // src/index.ts
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { google } from "googleapis";
-import { z } from "zod";                         // 👈 usa Zod
 
+// Compat tra versioni SDK (registerTool vs tool)
 function registerToolCompat(s: any, name: string, def: any, handler: any) {
   const fn = (s as any).registerTool ?? (s as any).tool;
   return fn.call(s, name, def, handler);
 }
 
 export default function () {
-  const server = new McpServer({ name: "google-calendar-mcp", version: "1.0.0" });
+  const server = new McpServer({
+    name: "google-calendar-mcp",
+    version: "1.0.0",
+  });
 
-  // ✅ ping con Zod
+  // TOOL 1 — ping (JSON Schema)
   registerToolCompat(
     server,
     "ping",
     {
       description: "Health check",
-      inputSchema: z.object({}).strict(),        // 👈 Zod, non JSON
+      inputSchema: {
+        type: "object",
+        properties: {},
+        additionalProperties: false,
+      },
     },
     async () => ({ content: [{ type: "text", text: "pong 🏓" }] })
   );
 
-  // ✅ list_events con Zod
+  // TOOL 2 — list_events (JSON Schema)
   registerToolCompat(
     server,
     "list_events",
     {
       description: "Elenca gli eventi futuri dal Google Calendar configurato",
-      inputSchema: z.object({
-        maxResults: z.number().int().positive().max(50).default(5).optional(),
-      }),
+      inputSchema: {
+        type: "object",
+        properties: {
+          maxResults: { type: "integer", minimum: 1, maximum: 50 },
+        },
+        required: [],
+        additionalProperties: false,
+      },
     },
-    // 👇 l'argomento è già validato/parso da Zod
-    async ({ maxResults }: { maxResults?: number }) => {
+    async ({ maxResults = 5 }: { maxResults?: number }) => {
       try {
         const auth = new google.auth.JWT(
           process.env.GOOGLE_CLIENT_EMAIL,
@@ -47,7 +58,7 @@ export default function () {
         const res = await calendar.events.list({
           calendarId: process.env.GOOGLE_CALENDAR_ID,
           timeMin: new Date().toISOString(),
-          maxResults: maxResults ?? 5,
+          maxResults,
           singleEvents: true,
           orderBy: "startTime",
         });
@@ -57,11 +68,13 @@ export default function () {
           return { content: [{ type: "text", text: "📭 Nessun evento trovato." }] };
         }
 
-        const text = items.map((e) => {
-          const start = e.start?.dateTime || e.start?.date || "Senza data";
-          const title = e.summary || "(Senza titolo)";
-          return `📅 ${start} — ${title}`;
-        }).join("\n");
+        const text = items
+          .map((e) => {
+            const start = e.start?.dateTime || e.start?.date || "Senza data";
+            const title = e.summary || "(Senza titolo)";
+            return `📅 ${start} — ${title}`;
+          })
+          .join("\n");
 
         return { content: [{ type: "text", text }] };
       } catch (err: any) {
