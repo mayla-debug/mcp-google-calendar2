@@ -2,6 +2,7 @@
   "name": "google-calendar-mcp",
   "version": "1.0.1",
   "private": true,
+  "type": "module",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
