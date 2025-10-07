@@ -1,5 +1,6 @@
 // src/index.ts
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { z } from "zod"; // ✅ aggiunta importazione Zod
 
 // compat fra versioni SDK (registerTool vs tool)
 function registerToolCompat(s: any, name: string, def: any, handler: any) {
@@ -18,15 +19,17 @@ export default function ({ config }: { config?: Record<string, unknown> }) {
     version: "1.0.0",
   });
 
-  // Tool minimo per lo scan
+  // ✅ Tool di test “ping” con schema Zod
   registerToolCompat(
     server,
     "ping",
     {
       description: "Health check",
-      inputSchema: { type: "object", properties: {}, additionalProperties: false },
+      inputSchema: z.object({}).strict() // <- cambia solo questa parte
     },
-    async () => ({ content: [{ type: "text", text: "pong" }] })
+    async () => ({
+      content: [{ type: "text", text: "pong 🏓" }]
+    })
   );
 
   return server;
