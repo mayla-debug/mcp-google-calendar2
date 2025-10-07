@@ -1,11 +1,14 @@
 runtime: "typescript"
+
 build:
   install: "npm ci"
   command: "npm run build"
+
 startCommand:
   type: "http"
   command: "node"
   args: ["dist/index.js"]
+
 env:
   PORT: "0"
   GOOGLE_CLIENT_ID: ""
