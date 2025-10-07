@@ -15,7 +15,7 @@ export default function ({ config }: { config?: Record<string, unknown> }) {
     version: "1.0.0",
   });
 
-  // 🟢 Test tool
+  // 🟢 Tool ping
   registerToolCompat(
     server,
     "ping",
@@ -28,12 +28,12 @@ export default function ({ config }: { config?: Record<string, unknown> }) {
     })
   );
 
-  // 🟢 Tool: list_events
+  // 🟢 Tool list_events
   registerToolCompat(
     server,
     "list_events",
     {
-      description: "Elenca gli eventi futuri dal calendario Google",
+      description: "Elenca gli eventi futuri da Google Calendar",
       inputSchema: z.object({
         maxResults: z.number().optional().default(5),
       }),
