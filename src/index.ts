@@ -1,7 +1,9 @@
+// src/index.ts
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { google } from "googleapis";
 
+// Compatibilità SDK (tool vs registerTool)
 function registerToolCompat(s: any, name: string, def: any, handler: any) {
   const fn = (s as any).registerTool ?? (s as any).tool;
   return fn.call(s, name, def, handler);
@@ -13,7 +15,7 @@ export default function ({ config }: { config?: Record<string, unknown> }) {
     version: "1.0.0",
   });
 
-  // --- Tool di test ---
+  // 🟢 Test tool
   registerToolCompat(
     server,
     "ping",
@@ -26,12 +28,12 @@ export default function ({ config }: { config?: Record<string, unknown> }) {
     })
   );
 
-  // --- Tool per leggere eventi dal calendario ---
+  // 🟢 Tool: list_events
   registerToolCompat(
     server,
     "list_events",
     {
-      description: "Elenca gli eventi futuri da Google Calendar",
+      description: "Elenca gli eventi futuri dal calendario Google",
       inputSchema: z.object({
         maxResults: z.number().optional().default(5),
       }),
@@ -59,7 +61,7 @@ export default function ({ config }: { config?: Record<string, unknown> }) {
 
         if (events.length === 0) {
           return {
-            content: [{ type: "text", text: "Nessun evento trovato 📭" }],
+            content: [{ type: "text", text: "📭 Nessun evento trovato." }],
           };
         }
 
@@ -72,12 +74,12 @@ export default function ({ config }: { config?: Record<string, unknown> }) {
 
         return { content: [{ type: "text", text: list }] };
       } catch (err: any) {
-        console.error("Errore nel list_events:", err);
+        console.error("Errore list_events:", err);
         return {
           content: [
             {
               type: "text",
-              text: `Errore: ${err.message}`,
+              text: `❌ Errore: ${err.message}`,
             },
           ],
         };
