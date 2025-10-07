@@ -15,12 +15,12 @@ export default function ({ config }: { config?: Record<string, unknown> }) {
     version: "1.0.0",
   });
 
-  // 🟢 Tool ping
+  // ✅ TOOL 1 — ping
   registerToolCompat(
     server,
     "ping",
     {
-      description: "Health check",
+      description: "Health check per verificare che il server risponda",
       inputSchema: z.object({}).strict(),
     },
     async () => ({
@@ -28,12 +28,12 @@ export default function ({ config }: { config?: Record<string, unknown> }) {
     })
   );
 
-  // 🟢 Tool list_events
+  // ✅ TOOL 2 — list_events
   registerToolCompat(
     server,
     "list_events",
     {
-      description: "Elenca gli eventi futuri da Google Calendar",
+      description: "Elenca gli eventi futuri dal calendario Google",
       inputSchema: z.object({
         maxResults: z.number().optional().default(5),
       }),
@@ -47,45 +47,4 @@ export default function ({ config }: { config?: Record<string, unknown> }) {
           ["https://www.googleapis.com/auth/calendar.readonly"]
         );
 
-        const calendar = google.calendar({ version: "v3", auth });
-
-        const res = await calendar.events.list({
-          calendarId: process.env.GOOGLE_CALENDAR_ID,
-          timeMin: new Date().toISOString(),
-          maxResults,
-          singleEvents: true,
-          orderBy: "startTime",
-        });
-
-        const events = res.data.items || [];
-
-        if (events.length === 0) {
-          return {
-            content: [{ type: "text", text: "📭 Nessun evento trovato." }],
-          };
-        }
-
-        const list = events
-          .map((e) => {
-            const start = e.start?.dateTime || e.start?.date || "Senza data";
-            return `📅 ${start} — ${e.summary ?? "(Senza titolo)"}`;
-          })
-          .join("\n");
-
-        return { content: [{ type: "text", text: list }] };
-      } catch (err: any) {
-        console.error("Errore list_events:", err);
-        return {
-          content: [
-            {
-              type: "text",
-              text: `❌ Errore: ${err.message}`,
-            },
-          ],
-        };
-      }
-    }
-  );
-
-  return server;
-}
+        const calendar = google.calendar({ versio
