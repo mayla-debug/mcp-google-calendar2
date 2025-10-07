@@ -1,9 +1,9 @@
-// src/mcp.ts — entry usata solo dallo smithery CLI (container)
+// src/mcp.ts — entry usata SOLO dal deployment "Container" di Smithery
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
-// compat: alcune versioni hanno server.tool, altre server.registerTool
+// compat: alcune versioni espongono server.tool, altre server.registerTool
 function registerToolCompat(s: any, name: string, def: any, handler: any) {
-  const fn = s.registerTool ?? s.tool;
+  const fn = (s as any).registerTool ?? (s as any).tool;
   return fn.call(s, name, def, handler);
 }
 
@@ -13,7 +13,7 @@ export default async function createServer() {
     version: "1.0.0",
   });
 
-  // Tool minimo per permettere allo scan di trovare qualcosa
+  // Tool minimo per far passare lo Scan
   registerToolCompat(
     server,
     "ping",
