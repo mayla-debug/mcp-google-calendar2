@@ -14,7 +14,7 @@ export default function ({ config }: { config?: Record<string, unknown> }) {
     version: "1.0.0",
   });
 
-  // ✅ TOOL 1 — ping (JSON Schema puro)
+  // TOOL 1 — ping
   registerToolCompat(
     server,
     "ping",
@@ -26,12 +26,10 @@ export default function ({ config }: { config?: Record<string, unknown> }) {
         additionalProperties: false,
       },
     },
-    async () => ({
-      content: [{ type: "text", text: "pong 🏓" }],
-    })
+    async () => ({ content: [{ type: "text", text: "pong 🏓" }] })
   );
 
-  // ✅ TOOL 2 — list_events (JSON Schema puro)
+  // TOOL 2 — list_events
   registerToolCompat(
     server,
     "list_events",
@@ -39,9 +37,7 @@ export default function ({ config }: { config?: Record<string, unknown> }) {
       description: "Elenca gli eventi futuri dal Google Calendar configurato",
       inputSchema: {
         type: "object",
-        properties: {
-          maxResults: { type: "number" },
-        },
+        properties: { maxResults: { type: "number" } },
         additionalProperties: false,
       },
     },
@@ -64,25 +60,22 @@ export default function ({ config }: { config?: Record<string, unknown> }) {
           orderBy: "startTime",
         });
 
-        const events = res.data.items || [];
-        if (events.length === 0) {
+        const items = res.data.items || [];
+        if (items.length === 0) {
           return { content: [{ type: "text", text: "📭 Nessun evento trovato." }] };
         }
 
-        const list = events
+        const text = items
           .map((e) => {
             const start = e.start?.dateTime || e.start?.date || "Senza data";
-            const title = e.summary || "(Senza titolo)";
-            return `📅 ${start} — ${title}`;
+            return `📅 ${start} — ${e.summary ?? "(Senza titolo)"}`;
           })
           .join("\n");
 
-        return { content: [{ type: "text", text: list }] };
+        return { content: [{ type: "text", text }] };
       } catch (err: any) {
         console.error("Errore list_events:", err);
-        return {
-          content: [{ type: "text", text: `❌ Errore: ${err.message}` }],
-        };
+        return { content: [{ type: "text", text: `❌ Errore: ${err.message}` }] };
       }
     }
   );
