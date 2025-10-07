@@ -1,6 +1,5 @@
 // src/index.ts
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { z } from "zod";
 import { google } from "googleapis";
 
 // Compat tra versioni SDK (registerTool vs tool)
@@ -15,36 +14,43 @@ export default function ({ config }: { config?: Record<string, unknown> }) {
     version: "1.0.0",
   });
 
-  // TOOL 1 — ping
+  // ✅ TOOL 1 — ping (JSON Schema puro)
   registerToolCompat(
     server,
     "ping",
     {
-      description: "Health check per verificare che il server risponda",
-      inputSchema: z.object({}).strict(),
+      description: "Health check",
+      inputSchema: {
+        type: "object",
+        properties: {},
+        additionalProperties: false,
+      },
     },
     async () => ({
       content: [{ type: "text", text: "pong 🏓" }],
     })
   );
 
-  // TOOL 2 — list_events
+  // ✅ TOOL 2 — list_events (JSON Schema puro)
   registerToolCompat(
     server,
     "list_events",
     {
       description: "Elenca gli eventi futuri dal Google Calendar configurato",
-      inputSchema: z.object({
-        maxResults: z.number().optional().default(5),
-      }),
+      inputSchema: {
+        type: "object",
+        properties: {
+          maxResults: { type: "number" },
+        },
+        additionalProperties: false,
+      },
     },
-    async ({ maxResults }) => {
+    async ({ maxResults = 5 }: { maxResults?: number }) => {
       try {
         const auth = new google.auth.JWT(
           process.env.GOOGLE_CLIENT_EMAIL,
           undefined,
-          // IMPORTANTE: converti \n in vere nuove righe
-          process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
+          (process.env.GOOGLE_PRIVATE_KEY || "").replace(/\\n/g, "\n"),
           ["https://www.googleapis.com/auth/calendar.readonly"]
         );
 
@@ -81,6 +87,5 @@ export default function ({ config }: { config?: Record<string, unknown> }) {
     }
   );
 
-  // DEVI restituire l'istanza del server
   return server;
 }
