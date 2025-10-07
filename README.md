@@ -1,4 +1,5 @@
 # Google Calendar MCP Server
+[![smithery badge](https://smithery.ai/badge/@mayla-debug/mcp-google-calendar2)](https://smithery.ai/server/@mayla-debug/mcp-google-calendar2)
 
 This is a Model Context Protocol (MCP) server that provides integration with Google Calendar. It allows LLMs to read, create, and manage calendar events through a standardized interface.
 
@@ -46,6 +47,14 @@ google-calendar-mcp/
       - Note: it will take a few minutes for the test user to be added. The OAuth consent will not allow you to proceed until the test user has propogated.
 
 ## Installation
+
+### Installing via Smithery
+
+To install mcp-google-calendar2 automatically via [Smithery](https://smithery.ai/server/@mayla-debug/mcp-google-calendar2):
+
+```bash
+npx -y @smithery/cli install @mayla-debug/mcp-google-calendar2
+```
 
 1. Clone the repository
 2. Install dependencies:
