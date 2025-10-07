@@ -1,32 +1,32 @@
-// src/index.ts (ESM + NodeNext)
 import express from "express";
+import { randomUUID } from "node:crypto";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 
-// Crea MCP server (senza tool per ora; li aggiungiamo dopo)
 const server = new McpServer({
   name: "google-calendar-mcp",
   version: "1.0.0",
 });
 
 const app = express();
-app.use(express.json());
+app.use(express.json({ limit: "5mb" }));
 
-// Endpoint MCP (Streamable HTTP). Smithery chiamerà questo.
+// Endpoint MCP usato da Smithery
 app.all("/mcp", async (req, res) => {
-  // un transport per richiesta (evita collisioni di ID)
   const transport = new StreamableHTTPServerTransport({
-    enableJsonResponse: true,
+    sessionIdGenerator: () => randomUUID(),   // <— richiesto
+    enableJsonResponse: true
   });
-  res.on("close", () => transport.close());
+
+  // un transport per richiesta
   await server.connect(transport);
   await transport.handleRequest(req, res, req.body);
 });
 
-// Health probe per l’Inspect
+// Health probe per Inspect
 app.get("/", (_req, res) => res.type("text").send("ok"));
 
-const port = parseInt(process.env.PORT ?? "3000", 10);
+const port = Number(process.env.PORT ?? 3000);
 app.listen(port, () => {
   console.log(`MCP HTTP online: http://localhost:${port}/mcp`);
 });
