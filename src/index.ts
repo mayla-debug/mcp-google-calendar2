@@ -3,7 +3,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { google } from "googleapis";
 
-// Compatibilità SDK (tool vs registerTool)
+// Compat tra versioni SDK (registerTool vs tool)
 function registerToolCompat(s: any, name: string, def: any, handler: any) {
   const fn = (s as any).registerTool ?? (s as any).tool;
   return fn.call(s, name, def, handler);
@@ -15,7 +15,7 @@ export default function ({ config }: { config?: Record<string, unknown> }) {
     version: "1.0.0",
   });
 
-  // ✅ TOOL 1 — ping
+  // TOOL 1 — ping
   registerToolCompat(
     server,
     "ping",
@@ -28,12 +28,12 @@ export default function ({ config }: { config?: Record<string, unknown> }) {
     })
   );
 
-  // ✅ TOOL 2 — list_events
+  // TOOL 2 — list_events
   registerToolCompat(
     server,
     "list_events",
     {
-      description: "Elenca gli eventi futuri dal calendario Google",
+      description: "Elenca gli eventi futuri dal Google Calendar configurato",
       inputSchema: z.object({
         maxResults: z.number().optional().default(5),
       }),
@@ -43,8 +43,44 @@ export default function ({ config }: { config?: Record<string, unknown> }) {
         const auth = new google.auth.JWT(
           process.env.GOOGLE_CLIENT_EMAIL,
           undefined,
+          // IMPORTANTE: converti \n in vere nuove righe
           process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
           ["https://www.googleapis.com/auth/calendar.readonly"]
         );
 
-        const calendar = google.calendar({ versio
+        const calendar = google.calendar({ version: "v3", auth });
+
+        const res = await calendar.events.list({
+          calendarId: process.env.GOOGLE_CALENDAR_ID,
+          timeMin: new Date().toISOString(),
+          maxResults,
+          singleEvents: true,
+          orderBy: "startTime",
+        });
+
+        const events = res.data.items || [];
+        if (events.length === 0) {
+          return { content: [{ type: "text", text: "📭 Nessun evento trovato." }] };
+        }
+
+        const list = events
+          .map((e) => {
+            const start = e.start?.dateTime || e.start?.date || "Senza data";
+            const title = e.summary || "(Senza titolo)";
+            return `📅 ${start} — ${title}`;
+          })
+          .join("\n");
+
+        return { content: [{ type: "text", text: list }] };
+      } catch (err: any) {
+        console.error("Errore list_events:", err);
+        return {
+          content: [{ type: "text", text: `❌ Errore: ${err.message}` }],
+        };
+      }
+    }
+  );
+
+  // DEVI restituire l'istanza del server
+  return server;
+}
