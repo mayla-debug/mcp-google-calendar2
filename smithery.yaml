@@ -1,3 +1,4 @@
+# smithery.yaml (corretto)
 runtime: "typescript"
 
 build:
@@ -7,10 +8,10 @@ build:
 startCommand:
   type: "http"
   command: "node"
-  args: ["dist/index.js"]
+  args: ["dist/http.js"]   # <-- era dist/index.js
 
+# IMPORTANTE: non forzare PORT=0
 env:
-  PORT: "0"
   GOOGLE_CLIENT_ID: ""
   GOOGLE_CLIENT_SECRET: ""
   GOOGLE_SCOPES: "https://www.googleapis.com/auth/calendar"
