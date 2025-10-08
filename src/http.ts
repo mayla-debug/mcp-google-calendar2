@@ -1,15 +1,14 @@
-// src/http.ts
 import createServer from "./index.js";
-import { HttpServerTransport } from "@modelcontextprotocol/sdk/server/transports/http.js";
+import { SseServerTransport } from "@modelcontextprotocol/sdk/server/transports/sse.js";
 
 async function start() {
   const server = createServer();
   const port = Number(process.env.PORT) || 3000;
 
-  const transport = new HttpServerTransport({ port });
+  const transport = new SseServerTransport({ port });
   await server.connect(transport);
 
-  console.log(`[MCP] HTTP server listening on :${port}`);
+  console.log(`[MCP] SSE server listening on :${port}`);
 }
 
 start().catch((err) => {
