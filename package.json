@@ -3,7 +3,13 @@
   "version": "1.0.3",
   "private": true,
   "type": "module",
+
+  // 👇 Richiesto da @smithery/cli (entry TypeScript del server MCP, NON l'HTTP)
+  "module": "./src/index.ts",
+
+  // 👇 Entry runtime Node che avvia l’SSE server
   "main": "dist/http.js",
+
   "scripts": {
     "prestart": "npm run build",
     "build": "tsc -p .",
