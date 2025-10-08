@@ -8,7 +8,8 @@ async function start() {
   const transport = new SseServerTransport({ port });
   await server.connect(transport);
 
-  console.log(`[MCP] SSE server listening on :${port}`);
+  // LOG SU STDERR
+  console.error(`[MCP] SSE server listening on :${port}`);
 }
 
 start().catch((err) => {
