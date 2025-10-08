@@ -14,12 +14,12 @@ export default function createServer() {
     version: "1.0.3"
   });
 
-  // Tool PING — schema permissivo (alcune UI inviano arguments: undefined)
+  // PING
   server.tool(
     "ping",
     {
       description: "Health check (returns 'pong 🏓')",
-      inputSchema: {
+      input_schema: {
         anyOf: [
           { type: "object", properties: {}, additionalProperties: false },
           { type: "null" }
@@ -27,17 +27,17 @@ export default function createServer() {
       }
     },
     async (_args) => {
-      console.log("[MCP] ping invoked");
+      console.error("[MCP] ping invoked");
       return { content: [{ type: "text", text: "pong 🏓" }] };
     }
   );
 
-  // (Facoltativo) Tool echo per testare gli argomenti
+  // ECHO
   server.tool(
     "echo",
     {
       description: "Echo back the provided text",
-      inputSchema: {
+      input_schema: {
         type: "object",
         properties: { text: { type: "string" } },
         required: ["text"],
@@ -45,8 +45,8 @@ export default function createServer() {
       }
     },
     async (args: any) => {
-      const text = String(args?.text ?? "");
-      console.log("[MCP] echo invoked with:", text);
+      const text = typeof args?.text === "string" ? args.text : String(args?.text ?? "");
+      console.error("[MCP] echo invoked with:", text);
       return { content: [{ type: "text", text }] };
     }
   );
