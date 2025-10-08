@@ -3,9 +3,10 @@
   "version": "1.0.3",
   "private": true,
   "type": "module",
-  "module": "./src/index.ts",
+  "main": "dist/index.js",
   "scripts": {
-    "start": "node .smithery/index.cjs"
+    "build": "tsc",
+    "start": "node dist/index.js"
   },
   "engines": { "node": ">=20" },
   "dependencies": {
