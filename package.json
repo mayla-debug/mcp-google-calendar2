@@ -3,17 +3,17 @@
   "version": "1.0.3",
   "private": true,
   "type": "module",
-  "module": "./src/index.ts",          // <— fondamentale per @smithery/cli
+  "module": "./src/index.ts",
   "scripts": {
-    "build": "tsc -p ."
+    "start": "node .smithery/index.cjs"
   },
   "engines": { "node": ">=20" },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
-    "@smithery/sdk": "^1.4.6"
+    "@smithery/sdk": "^1.4.6",
+    "chalk": "^5.3.0"
   },
   "devDependencies": {
-    "typescript": "^5.6.3",
-    "tsx": "^4.7.0"
+    "typescript": "^5.6.3"
   }
 }
