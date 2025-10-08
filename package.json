@@ -3,7 +3,7 @@
   "version": "1.0.3",
   "private": true,
   "type": "module",
-  "module": "./src/index.ts",
+  "module": "./src/index.ts",          // <— fondamentale per @smithery/cli
   "scripts": {
     "build": "tsc -p ."
   },
