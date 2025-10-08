@@ -10,7 +10,7 @@ function registerToolCompat(s: any, name: string, def: any, handler: any) {
 export default function () {
   const server = new McpServer({
     name: "google-calendar-mcp",
-    version: "1.0.1"
+    version: "1.0.1",
   });
 
   registerToolCompat(
@@ -18,7 +18,11 @@ export default function () {
     "ping",
     {
       description: "Health check",
-      inputSchema: { type: "object", additionalProperties: false }
+      inputSchema: {
+        type: "object",
+        properties: {},          // <— importante per JSON Schema “vuoto”
+        additionalProperties: false,
+      },
     },
     async () => ({ content: [{ type: "text", text: "pong 🏓" }] })
   );
