@@ -1,41 +1,27 @@
+// src/index.ts
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
-// istanzia il server una sola volta ed esportalo
-export const server = new McpServer({
-  name: "google-calendar-mcp",
-  version: "1.0.3",
-});
+// Compat tra versioni SDK (registerTool vs tool)
+function registerToolCompat(s: any, name: string, def: any, handler: any) {
+  const fn = (s as any).registerTool ?? (s as any).tool;
+  return fn.call(s, name, def, handler);
+}
 
-// ---- tools ----
-server.tool(
-  "ping",
-  {
-    description: "Health check (returns 'pong 🏓')",
-    inputSchema: { type: "object", properties: {}, additionalProperties: false },
-  },
-  async () => {
-    console.error("[MCP] ping invoked");
-    return { content: [{ type: "text", text: "pong 🏓" }] };
-  }
-);
+export default function () {
+  const server = new McpServer({
+    name: "google-calendar-mcp",
+    version: "1.0.1"
+  });
 
-server.tool(
-  "echo",
-  {
-    description: "Echo back the provided text",
-    inputSchema: {
-      type: "object",
-      properties: { text: { type: "string" } },
-      required: ["text"],
-      additionalProperties: false,
+  registerToolCompat(
+    server,
+    "ping",
+    {
+      description: "Health check",
+      inputSchema: { type: "object", additionalProperties: false }
     },
-  },
-  async (args: any) => {
-    const text = typeof args?.text === "string" ? args.text : String(args?.text ?? "");
-    console.error("[MCP] echo invoked with:", text);
-    return { content: [{ type: "text", text }] };
-  }
-);
+    async () => ({ content: [{ type: "text", text: "pong 🏓" }] })
+  );
 
-// export default opzionale (alcuni toolchain lo usano)
-export default server;
+  return server;
+}
