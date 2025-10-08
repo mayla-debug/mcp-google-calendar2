@@ -7,9 +7,9 @@ build:
 startCommand:
   type: "http"
   command: "node"
-  args: ["dist/http.js"]   # <-- prima era dist/index.js (sbagliato)
+  args: ["dist/http.js"]   # ✅ non "dist/index.js"
 
-# NIENTE PORT qui: la inietta Smithery
+# ❌ NIENTE PORT qui: la inietta Smithery automaticamente
 env:
   GOOGLE_CLIENT_ID: ""
   GOOGLE_CLIENT_SECRET: ""
