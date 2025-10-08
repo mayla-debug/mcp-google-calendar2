@@ -3,7 +3,7 @@
   "version": "1.0.3",
   "private": true,
   "type": "module",
-  "module": "./src/index.ts",
+  "main": "dist/http.js",
   "scripts": {
     "prestart": "npm run build",
     "build": "tsc -p .",
