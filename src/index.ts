@@ -1,6 +1,6 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
-// Log utili per vedere qualsiasi errore runtime
+// Log utili
 process.on("unhandledRejection", (err: any) => {
   console.error("[MCP] UnhandledRejection:", err);
 });
@@ -14,13 +14,12 @@ export default function createServer() {
     version: "1.0.3"
   });
 
-  // Tool PING: schema super permissivo per evitare errori da arguments undefined
+  // Tool PING — schema permissivo (alcune UI inviano arguments: undefined)
   server.tool(
     "ping",
     {
       description: "Health check (returns 'pong 🏓')",
       inputSchema: {
-        // Permettiamo object, null e anche omissione (almeno una di queste verrà accettata dalla UI)
         anyOf: [
           { type: "object", properties: {}, additionalProperties: false },
           { type: "null" }
@@ -33,7 +32,7 @@ export default function createServer() {
     }
   );
 
-  // Tool ECHO per testare passaggio args
+  // (Facoltativo) Tool echo per testare gli argomenti
   server.tool(
     "echo",
     {
