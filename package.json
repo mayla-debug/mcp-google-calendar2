@@ -5,9 +5,10 @@
   "type": "module",
   "module": "./src/index.ts",
   "scripts": {
-    "dev": "tsx watch src/http.ts",
-    "start": "node dist/http.js",
-    "build": "tsc -p ."
+    "prestart": "npm run build",
+    "build": "tsc -p .",
+    "start": "node --enable-source-maps dist/http.js",
+    "dev": "tsx watch src/http.ts"
   },
   "engines": { "node": ">=20" },
   "dependencies": {
