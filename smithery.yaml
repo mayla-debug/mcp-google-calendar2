@@ -2,14 +2,14 @@ runtime: "typescript"
 
 build:
   install: "npm ci"
-  command: "npm run build"   # ok: compila TS → dist, e Smithery esegue ANCHE il suo build wrapper
+  command: "npm run build"
 
 startCommand:
   type: "http"
   command: "node"
-  args: [".smithery/index.cjs"]   # 👈 avvia il wrapper generato dal CLI
+  args: [".smithery/index.cjs"]   # <-- avvia il wrapper generato
 
-# NON impostare PORT: la inietta Smithery
+# non impostare PORT: la fornisce Smithery
 env:
   GOOGLE_CLIENT_ID: ""
   GOOGLE_CLIENT_SECRET: ""
