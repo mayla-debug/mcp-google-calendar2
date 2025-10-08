@@ -1,12 +1,5 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
-process.on("unhandledRejection", (err: any) => {
-  console.error("[MCP] UnhandledRejection:", err);
-});
-process.on("uncaughtException", (err: any) => {
-  console.error("[MCP] UncaughtException:", err);
-});
-
 export default function createServer() {
   const server = new McpServer({
     name: "google-calendar-mcp",
@@ -17,15 +10,13 @@ export default function createServer() {
     "ping",
     {
       description: "Health check (returns 'pong 🏓')",
-      // 👇 snake_case per massima compatibilità client
-      input_schema: {
-        anyOf: [
-          { type: "object", properties: {}, additionalProperties: false },
-          { type: "null" },
-        ],
-      },
+      inputSchema: {                       // 👈 camelCase, non annotations
+        type: "object",
+        properties: {},
+        additionalProperties: false
+      }
     },
-    async (_args) => {
+    async () => {
       console.error("[MCP] ping invoked");
       return { content: [{ type: "text", text: "pong 🏓" }] };
     }
@@ -35,12 +26,12 @@ export default function createServer() {
     "echo",
     {
       description: "Echo back the provided text",
-      input_schema: {
+      inputSchema: {                       // 👈 camelCase
         type: "object",
         properties: { text: { type: "string" } },
         required: ["text"],
-        additionalProperties: false,
-      },
+        additionalProperties: false
+      }
     },
     async (args: any) => {
       const text = typeof args?.text === "string" ? args.text : String(args?.text ?? "");
