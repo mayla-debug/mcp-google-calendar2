@@ -1,16 +1,13 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
 export default function createServer() {
-  const server = new McpServer({
-    name: "google-calendar-mcp",
-    version: "1.0.3",
-  });
+  const server = new McpServer({ name: "google-calendar-mcp", version: "1.0.3" });
 
   server.tool(
     "ping",
     {
       description: "Health check (returns 'pong 🏓')",
-      inputSchema: {                       // 👈 camelCase, non annotations
+      inputSchema: {               // 👈 CAMEL CASE
         type: "object",
         properties: {},
         additionalProperties: false
@@ -26,7 +23,7 @@ export default function createServer() {
     "echo",
     {
       description: "Echo back the provided text",
-      inputSchema: {                       // 👈 camelCase
+      inputSchema: {               // 👈 CAMEL CASE
         type: "object",
         properties: { text: { type: "string" } },
         required: ["text"],
