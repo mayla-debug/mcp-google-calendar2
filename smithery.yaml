@@ -1,4 +1,3 @@
-# smithery.yaml (corretto)
 runtime: "typescript"
 
 build:
@@ -8,9 +7,9 @@ build:
 startCommand:
   type: "http"
   command: "node"
-  args: ["dist/http.js"]   # <-- era dist/index.js
+  args: ["dist/http.js"]   # <-- prima era dist/index.js (sbagliato)
 
-# IMPORTANTE: non forzare PORT=0
+# NIENTE PORT qui: la inietta Smithery
 env:
   GOOGLE_CLIENT_ID: ""
   GOOGLE_CLIENT_SECRET: ""
