@@ -5,7 +5,9 @@
   "type": "module",
   "module": "./src/index.ts",
   "scripts": {
-    "start": "node .smithery/index.cjs"
+    "dev": "tsx watch src/http.ts",
+    "start": "node dist/http.js",
+    "build": "tsc -p ."
   },
   "engines": { "node": ">=20" },
   "dependencies": {
@@ -14,6 +16,7 @@
     "chalk": "^5.3.0"
   },
   "devDependencies": {
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "tsx": "^4.7.0"
   }
 }
