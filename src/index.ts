@@ -1,6 +1,5 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
-// Log utili
 process.on("unhandledRejection", (err: any) => {
   console.error("[MCP] UnhandledRejection:", err);
 });
@@ -11,20 +10,20 @@ process.on("uncaughtException", (err: any) => {
 export default function createServer() {
   const server = new McpServer({
     name: "google-calendar-mcp",
-    version: "1.0.3"
+    version: "1.0.3",
   });
 
-  // PING
   server.tool(
     "ping",
     {
       description: "Health check (returns 'pong 🏓')",
+      // 👇 snake_case per massima compatibilità client
       input_schema: {
         anyOf: [
           { type: "object", properties: {}, additionalProperties: false },
-          { type: "null" }
-        ]
-      }
+          { type: "null" },
+        ],
+      },
     },
     async (_args) => {
       console.error("[MCP] ping invoked");
@@ -32,7 +31,6 @@ export default function createServer() {
     }
   );
 
-  // ECHO
   server.tool(
     "echo",
     {
@@ -41,8 +39,8 @@ export default function createServer() {
         type: "object",
         properties: { text: { type: "string" } },
         required: ["text"],
-        additionalProperties: false
-      }
+        additionalProperties: false,
+      },
     },
     async (args: any) => {
       const text = typeof args?.text === "string" ? args.text : String(args?.text ?? "");
