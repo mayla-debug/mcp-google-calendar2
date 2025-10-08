@@ -3,16 +3,9 @@
   "version": "1.0.3",
   "private": true,
   "type": "module",
-
   "module": "./src/index.ts",
-
-  "main": "dist/http.js",
-
   "scripts": {
-    "prestart": "npm run build",
-    "build": "tsc -p .",
-    "start": "node --enable-source-maps dist/http.js",
-    "dev": "tsx watch src/http.ts"
+    "build": "tsc -p ."
   },
   "engines": { "node": ">=20" },
   "dependencies": {
