@@ -7,10 +7,10 @@ build:
 startCommand:
   type: "http"
   command: "node"
-  args: [".smithery/index.cjs"]   # <-- avvia il wrapper generato
+  args: ["dist/index.js"]
 
-# non impostare PORT: la fornisce Smithery
 env:
+  PORT: "0"
   GOOGLE_CLIENT_ID: ""
   GOOGLE_CLIENT_SECRET: ""
   GOOGLE_SCOPES: "https://www.googleapis.com/auth/calendar"
