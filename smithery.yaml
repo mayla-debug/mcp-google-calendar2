@@ -1,19 +1,16 @@
 runtime: "typescript"
 
 build:
-  # Usa "npm install" perché stai modificando package.json da GitHub (niente lockfile aggiornato).
-  # Se in futuro committi anche il package-lock.json, puoi tornare a: install: "npm ci"
-  install: "npm install"
-  command: "npm run build"
+  install: "npm install"      # ok anche senza lockfile aggiornato
+  command: "npm run build"    # opzionale, ma va bene lasciarlo
 
 startCommand:
   type: "http"
   command: "node"
-  args: ["dist/index.js"]
+  args: [".smithery/index.cjs"]   # <-- usa SOLO questa riga (rimuovi quella con dist/index.js)
 
 env:
   PORT: "0"
-  # Solo valori non sensibili qui. Le chiavi reali vanno nei Secrets di Smithery.
   GOOGLE_SCOPES: "https://www.googleapis.com/auth/calendar.readonly"
-  # CALENDAR_ID è opzionale (il codice userà "primary" se non presente)
-  # CALENDAR_ID: "primary"
+  # (facoltativo) CALENDAR_ID: "primary"
+  # NON mettere qui i segreti: GOOGLE_CLIENT_EMAIL / GOOGLE_PRIVATE_KEY restano nei Secrets di Smithery
