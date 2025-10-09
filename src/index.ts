@@ -2,26 +2,40 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { google } from "googleapis";
 
-/**
- * Esporta un'unica istanza di MCP server.
- * Il trasporto HTTP/SSE lo gestisce lo wrapper Smithery (.smithery/index.cjs).
+/** Unica istanza di MCP server esportata di default.
+ *  Il trasporto HTTP/SSE lo gestisce lo wrapper Smithery (.smithery/index.cjs).
  */
 const server = new McpServer({
   name: "mcp-google-calendar2",
-  version: "1.1.1",
+  version: "1.1.2",
 });
 
-// --- Shim di compatibilità: se manca server.tool, alias su registerTool(name, def, handler)
+// --- shim: se manca server.tool, alias su registerTool(name, def, handler)
 const anyServer: any = server as any;
 if (typeof anyServer.tool !== "function" && typeof anyServer.registerTool === "function") {
   anyServer.tool = (def: any, handler: any) => anyServer.registerTool(def.name, def, handler);
 }
 
-// ---------- Tool di health check ----------
-server.tool(
+// --- helper: registra un tool ma ignora i doppioni (idempotente)
+function safeTool(def: any, handler: any) {
+  try {
+    (server as any).tool(def, handler);
+  } catch (e: any) {
+    if (e && typeof e.message === "string" && /already registered/i.test(e.message)) {
+      console.warn(`[MCP] tool '${def?.name}' già registrato: skip`);
+      return;
+    }
+    throw e;
+  }
+}
+
+/* =====================  TOOLS  ===================== */
+
+// (rinominato per evitare collisioni con eventuale "ping" interno)
+safeTool(
   {
-    name: "ping",
-    description: "Health check",
+    name: "health.ping",
+    description: "Health check (returns 'pong 🏓')",
     inputSchema: { type: "object", properties: {}, additionalProperties: false },
   },
   async () => ({ content: [{ type: "text", text: "pong 🏓" }] })
@@ -39,13 +53,10 @@ async function getAuth() {
       email: process.env.GOOGLE_CLIENT_EMAIL,
       key,
       scopes: [scope],
-      subject: process.env.GOOGLE_SUBJECT || undefined, // opzionale (Domain-Wide Delegation)
+      subject: process.env.GOOGLE_SUBJECT || undefined, // opzionale
     });
   }
-
-  throw new Error(
-    "Google auth non configurato: imposta GOOGLE_CLIENT_EMAIL e GOOGLE_PRIVATE_KEY nei Secrets."
-  );
+  throw new Error("Google auth non configurato: imposta GOOGLE_CLIENT_EMAIL e GOOGLE_PRIVATE_KEY nei Secrets.");
 }
 
 async function getCalendar(calendarIdOverride?: string) {
@@ -59,7 +70,7 @@ const asText = (obj: unknown) =>
   ({ type: "text" as const, text: JSON.stringify(obj, null, 2) });
 
 // ---------- TOOL: gcal.listEvents ----------
-server.tool(
+safeTool(
   {
     name: "gcal.listEvents",
     description: "Elenca eventi (default: da adesso in poi).",
