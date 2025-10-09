@@ -1,24 +1,23 @@
-// src/index.ts
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
-import { HttpServerTransport } from "@modelcontextprotocol/sdk/server/transport/http.js";
 import { google } from "googleapis";
 
+// istanzia una sola volta e ESPORTA il server (niente start del transport qui)
 const server = new Server(
   { name: "mcp-google-calendar2", version: "1.1.0" },
   { capabilities: {} }
 );
 
-// --- tool di health check ---
+// ---------- tool di health check ----------
 server.tool(
   {
     name: "ping",
     description: "Health check",
     inputSchema: { type: "object", properties: {}, additionalProperties: false }
   },
-  async () => ({ content: [{ type: "text", text: "pong" }] })
+  async () => ({ content: [{ type: "text", text: "pong 🏓" }] })
 );
 
-// --- auth con Service Account ---
+// ---------- helper Google (Service Account) ----------
 async function getAuth() {
   const scope =
     process.env.GOOGLE_SCOPES ||
@@ -30,7 +29,7 @@ async function getAuth() {
       email: process.env.GOOGLE_CLIENT_EMAIL,
       key,
       scopes: [scope],
-      subject: process.env.GOOGLE_SUBJECT || undefined, // opzionale
+      subject: process.env.GOOGLE_SUBJECT || undefined
     });
   }
 
@@ -49,7 +48,7 @@ async function getCalendar(calendarIdOverride?: string) {
 const asText = (obj: unknown) =>
   ({ type: "text" as const, text: JSON.stringify(obj, null, 2) });
 
-// --- TOOL: gcal.listEvents ---
+// ---------- TOOL: gcal.listEvents ----------
 server.tool(
   {
     name: "gcal.listEvents",
@@ -77,17 +76,13 @@ server.tool(
         q: args?.q,
         maxResults: args?.maxResults ?? 10,
         singleEvents: args?.singleEvents ?? true,
-        orderBy: "startTime",
+        orderBy: "startTime"
       });
       return { content: [asText(res.data.items ?? [])] };
     } catch (e: any) {
-      return { content: [asText({ error: String(e?.message || e) })] };
+      return { content: [asText({ error: e?.message || String(e) })] };
     }
   }
 );
 
-// --- avvio HTTP/SSE ---
-const port = Number(process.env.PORT || 0);
-const transport = new HttpServerTransport({ port, stream: true });
-await server.connect(transport);
-console.log("MCP HTTP server ready on port", transport.port);
+export default server;
