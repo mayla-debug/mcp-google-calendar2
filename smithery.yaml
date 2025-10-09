@@ -1,7 +1,7 @@
 runtime: "typescript"
 
 build:
-  install: "npm ci"
+  install: "npm install"     # <--- era "npm ci"
   command: "npm run build"
 
 startCommand:
@@ -13,5 +13,5 @@ env:
   PORT: "0"
   GOOGLE_CLIENT_ID: ""
   GOOGLE_CLIENT_SECRET: ""
-  GOOGLE_SCOPES: "https://www.googleapis.com/auth/calendar"
+  GOOGLE_SCOPES: "https://www.googleapis.com/auth/calendar"  # lo ridurremo dopo a readonly
   CALENDAR_ID: ""
