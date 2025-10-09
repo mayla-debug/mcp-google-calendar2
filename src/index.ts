@@ -1,6 +1,5 @@
 // src/index.ts
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { google } from "googleapis";
 
 /**
  * Smithery vuole: export default function({ sessionId?, config? }) { return server }
@@ -9,7 +8,7 @@ import { google } from "googleapis";
 export default function createServer(_opts: { sessionId?: string; config?: unknown } = {}) {
   const server = new McpServer({
     name: "mcp-google-calendar2",
-    version: "1.2.0",
+    version: "1.2.1",
   });
 
   // --- shim: se manca server.tool, alias su registerTool(name, def, handler)
@@ -39,6 +38,8 @@ export default function createServer(_opts: { sessionId?: string; config?: unkno
 
     if (process.env.GOOGLE_CLIENT_EMAIL && process.env.GOOGLE_PRIVATE_KEY) {
       const key = process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, "\n");
+      // import dinamico delle googleapis (evita 500 se la lib manca all’avvio)
+      const { google } = await import("googleapis");
       return new google.auth.JWT({
         email: process.env.GOOGLE_CLIENT_EMAIL,
         key,
@@ -52,6 +53,7 @@ export default function createServer(_opts: { sessionId?: string; config?: unkno
   }
 
   async function getCalendar(calendarIdOverride?: string) {
+    const { google } = await import("googleapis"); // <— import lazy
     const auth = await getAuth();
     const cal = google.calendar({ version: "v3", auth });
     const calendarId = calendarIdOverride || process.env.CALENDAR_ID || "primary";
