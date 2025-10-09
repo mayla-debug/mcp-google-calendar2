@@ -1,20 +1,20 @@
 // src/index.ts
-import { Server } from "@modelcontextprotocol/sdk/server/index.js";
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { google } from "googleapis";
 
 /**
- * Istanzia una sola volta il server MCP ed esportalo come default.
- * Lo start HTTP/SSE lo fa lo wrapper generato da Smithery (.smithery/index.cjs).
+ * Esporta un'unica istanza di MCP server.
+ * Il trasporto HTTP/SSE lo gestisce lo wrapper Smithery (.smithery/index.cjs).
  */
-const server = new Server(
-  { name: "mcp-google-calendar2", version: "1.1.0" },
-  { capabilities: {} }
-);
+const server = new McpServer({
+  name: "mcp-google-calendar2",
+  version: "1.1.1",
+});
 
-// --- Shim di compatibilità: se manca server.tool, usa registerTool ---
-const _srv: any = server as any;
-if (typeof _srv.tool !== "function" && typeof _srv.registerTool === "function") {
-  _srv.tool = (def: any, handler: any) => _srv.registerTool(def.name, def, handler);
+// --- Shim di compatibilità: se manca server.tool, alias su registerTool(name, def, handler)
+const anyServer: any = server as any;
+if (typeof anyServer.tool !== "function" && typeof anyServer.registerTool === "function") {
+  anyServer.tool = (def: any, handler: any) => anyServer.registerTool(def.name, def, handler);
 }
 
 // ---------- Tool di health check ----------
@@ -39,8 +39,7 @@ async function getAuth() {
       email: process.env.GOOGLE_CLIENT_EMAIL,
       key,
       scopes: [scope],
-      // Se usi Domain-Wide Delegation:
-      subject: process.env.GOOGLE_SUBJECT || undefined,
+      subject: process.env.GOOGLE_SUBJECT || undefined, // opzionale (Domain-Wide Delegation)
     });
   }
 
