@@ -1,23 +1,33 @@
+// src/index.ts
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { google } from "googleapis";
 
-// istanzia una sola volta e ESPORTA il server (niente start del transport qui)
+/**
+ * Istanzia una sola volta il server MCP ed esportalo come default.
+ * Lo start HTTP/SSE lo fa lo wrapper generato da Smithery (.smithery/index.cjs).
+ */
 const server = new Server(
   { name: "mcp-google-calendar2", version: "1.1.0" },
   { capabilities: {} }
 );
 
-// ---------- tool di health check ----------
+// --- Shim di compatibilità: se manca server.tool, usa registerTool ---
+const _srv: any = server as any;
+if (typeof _srv.tool !== "function" && typeof _srv.registerTool === "function") {
+  _srv.tool = (def: any, handler: any) => _srv.registerTool(def.name, def, handler);
+}
+
+// ---------- Tool di health check ----------
 server.tool(
   {
     name: "ping",
     description: "Health check",
-    inputSchema: { type: "object", properties: {}, additionalProperties: false }
+    inputSchema: { type: "object", properties: {}, additionalProperties: false },
   },
   async () => ({ content: [{ type: "text", text: "pong 🏓" }] })
 );
 
-// ---------- helper Google (Service Account) ----------
+// ---------- Helpers Google (Service Account) ----------
 async function getAuth() {
   const scope =
     process.env.GOOGLE_SCOPES ||
@@ -29,7 +39,8 @@ async function getAuth() {
       email: process.env.GOOGLE_CLIENT_EMAIL,
       key,
       scopes: [scope],
-      subject: process.env.GOOGLE_SUBJECT || undefined
+      // Se usi Domain-Wide Delegation:
+      subject: process.env.GOOGLE_SUBJECT || undefined,
     });
   }
 
