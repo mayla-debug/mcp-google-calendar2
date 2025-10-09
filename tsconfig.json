@@ -1,13 +1,16 @@
-{
   "compilerOptions": {
     "target": "ES2022",
     "module": "ES2022",
+    "moduleResolution": "Bundler",
+    "verbatimModuleSyntax": true,
     "moduleResolution": "Node",
     "outDir": "dist",
     "rootDir": "src",
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "strict": true,
+    "skipLibCheck": true,
+    "sourceMap": true
     "skipLibCheck": true
   },
   "include": ["src/**/*.ts"]
